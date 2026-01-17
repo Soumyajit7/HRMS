@@ -9,10 +9,23 @@ load_dotenv()
 
 app = FastAPI(title="HRMS Lite API", version="1.0.0")
 
-# CORS middleware
+# CORS middleware - allow both localhost and deployed domains
+ALLOWED_ORIGINS = [
+    "http://localhost:3000", 
+    "http://localhost:5173",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "https://hrms-livid-iota.vercel.app",  # Your deployed frontend
+    # Add more domains as needed for different deployments
+]
+
+# Allow all origins from environment variable (for flexibility)
+if os.getenv("ALLOWED_ORIGINS"):
+    ALLOWED_ORIGINS.extend(os.getenv("ALLOWED_ORIGINS").split(","))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
