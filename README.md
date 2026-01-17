@@ -23,7 +23,7 @@ A lightweight HRMS application built with React frontend and FastAPI backend usi
 - React 18
 - Vite (bundler)
 - Axios (HTTP client)
-- Custom CSS with utility classes
+- Custom CSS with utility classes (Tailwind CSS removed)
 
 **Backend:**
 - FastAPI
@@ -57,7 +57,7 @@ pip install -r requirements.txt
 
 4. Run the backend server:
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8002
 ```
 
 The backend API will be available at `http://localhost:8000`
@@ -79,7 +79,7 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:3000`
+The frontend will be available at `http://localhost:3001`
 
 ## API Documentation
 
@@ -100,6 +100,7 @@ HRMS/
 │   ├── requirements.txt
 │   └── .env
 └── frontend/
+    ├── _redirects           # Routing redirects for deployment
     ├── src/
     │   ├── components/
     │   │   ├── EmployeeForm.jsx
@@ -120,7 +121,7 @@ HRMS/
 ## Usage
 
 1. Start both backend and frontend servers
-2. Open `http://localhost:3000` in your browser
+2. Open `http://localhost:3001` in your browser
 3. Add employees first using the Employee Management section
 4. Mark attendance using the Attendance Management section
 5. Use filters to view specific attendance records
@@ -137,6 +138,8 @@ HRMS/
 ✅ Date filtering for attendance records
 ✅ Present/Absent statistics
 ✅ MongoDB Atlas integration
+✅ Enhanced button styling with hover effects
+✅ Proper cursor pointers for interactive elements
 
 ## Assumptions
 
@@ -153,3 +156,4 @@ For production deployment:
 - Configure proper CORS settings in backend
 - Set up environment variables securely
 - Use production build for frontend (`npm run build`)
+- The `_redirects` file handles client-side routing for static hosting
