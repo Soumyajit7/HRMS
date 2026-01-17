@@ -20,6 +20,9 @@ app.add_middleware(
 
 # MongoDB connection
 MONGODB_URI = os.getenv("MONGODB_URI")
+client = None
+db = None
+
 try:
     client = AsyncIOMotorClient(
         MONGODB_URI,
@@ -27,16 +30,10 @@ try:
         connectTimeoutMS=10000,
         socketTimeoutMS=20000
     )
-    # Test the connection
-    import asyncio
-    asyncio.get_event_loop().run_until_complete(client.admin.command('ping'))
     db = client.hrms_lite
-    print("MongoDB connection successful!")
+    print("MongoDB client initialized successfully!")
 except Exception as e:
-    print(f"Warning: Could not connect to MongoDB: {e}")
-    # Fallback to in-memory storage for testing purposes
-    client = None
-    db = None
+    print(f"Warning: Could not initialize MongoDB client: {e}")
 
 @app.get("/")
 async def root():
