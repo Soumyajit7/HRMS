@@ -3,6 +3,7 @@ from typing import Optional
 from datetime import date, datetime
 from enum import Enum
 from bson import ObjectId
+from pydantic import validator
 
 # Simplified ObjectId handling
 class PyObjectId(ObjectId):
@@ -24,15 +25,21 @@ class AttendanceBase(BaseModel):
     employee_id: str = Field(..., min_length=1)
     date: date
     status: AttendanceStatus
+    
+    @validator('date', pre=True)
+    def convert_date_to_datetime(cls, v):
+        if isinstance(v, date) and not isinstance(v, datetime):
+            return datetime.combine(v, datetime.min.time())
+        return v
 
 class AttendanceCreate(AttendanceBase):
     pass
 
 class Attendance(AttendanceBase):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[str] = Field(alias="_id", default=None)
     
     class Config:
-        arbitrary_types_allowed = True
+        allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
         use_enum_values = True
 

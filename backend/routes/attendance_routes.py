@@ -30,10 +30,14 @@ async def create_attendance(attendance: AttendanceCreate):
             detail="Employee not found"
         )
     
+    # Convert date to datetime for MongoDB
+    from datetime import datetime
+    attendance_date = datetime.combine(attendance.date, datetime.min.time())
+    
     # Check if attendance already exists for this employee on this date
     existing_attendance = await db.attendance.find_one({
         "employee_id": attendance.employee_id,
-        "date": attendance.date
+        "date": attendance_date
     })
     
     if existing_attendance:
@@ -43,9 +47,12 @@ async def create_attendance(attendance: AttendanceCreate):
         )
     
     attendance_dict = attendance.dict()
+    attendance_dict['date'] = attendance_date  # Use the converted datetime
     result = await db.attendance.insert_one(attendance_dict)
     created_attendance = await db.attendance.find_one({"_id": result.inserted_id})
     
+    # Convert ObjectId to string for JSON serialization
+    created_attendance['_id'] = str(created_attendance['_id'])
     return Attendance(**created_attendance)
 
 @router.get("/", response_model=List[Attendance])
@@ -76,6 +83,9 @@ async def get_attendance(
     
     attendance_cursor = db.attendance.find(query).sort("date", -1)
     attendance_records = await attendance_cursor.to_list(length=1000)
+    # Convert ObjectId to string for each record
+    for record in attendance_records:
+        record['_id'] = str(record['_id'])
     return [Attendance(**record) for record in attendance_records]
 
 @router.get("/employee/{employee_id}", response_model=List[Attendance])
@@ -91,6 +101,9 @@ async def get_employee_attendance(employee_id: str):
     
     attendance_cursor = db.attendance.find({"employee_id": employee_id}).sort("date", -1)
     attendance_records = await attendance_cursor.to_list(length=1000)
+    # Convert ObjectId to string for each record
+    for record in attendance_records:
+        record['_id'] = str(record['_id'])
     return [Attendance(**record) for record in attendance_records]
 
 @router.put("/{attendance_id}", response_model=Attendance)
@@ -113,6 +126,8 @@ async def update_attendance(attendance_id: str, attendance_update: AttendanceUpd
         )
     
     updated_attendance = await db.attendance.find_one({"_id": attendance_id})
+    # Convert ObjectId to string
+    updated_attendance['_id'] = str(updated_attendance['_id'])
     return Attendance(**updated_attendance)
 
 @router.delete("/{attendance_id}", status_code=status.HTTP_204_NO_CONTENT)

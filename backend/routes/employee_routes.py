@@ -41,6 +41,8 @@ async def create_employee(employee: EmployeeCreate):
     result = await db.employees.insert_one(employee_dict)
     created_employee = await db.employees.find_one({"_id": result.inserted_id})
     
+    # Convert ObjectId to string for JSON serialization
+    created_employee['_id'] = str(created_employee['_id'])
     return Employee(**created_employee)
 
 @router.get("/", response_model=List[Employee])
@@ -48,6 +50,9 @@ async def get_employees(skip: int = 0, limit: int = 100):
     """Get all employees with pagination"""
     employees_cursor = db.employees.find().skip(skip).limit(limit)
     employees = await employees_cursor.to_list(length=limit)
+    # Convert ObjectId to string for each employee
+    for employee in employees:
+        employee['_id'] = str(employee['_id'])
     return [Employee(**employee) for employee in employees]
 
 @router.get("/{employee_id}", response_model=Employee)
@@ -59,6 +64,8 @@ async def get_employee(employee_id: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Employee not found"
         )
+    # Convert ObjectId to string
+    employee['_id'] = str(employee['_id'])
     return Employee(**employee)
 
 @router.put("/{employee_id}", response_model=Employee)
@@ -90,6 +97,8 @@ async def update_employee(employee_id: str, employee_update: EmployeeUpdate):
         )
     
     updated_employee = await db.employees.find_one({"employee_id": employee_id})
+    # Convert ObjectId to string
+    updated_employee['_id'] = str(updated_employee['_id'])
     return Employee(**updated_employee)
 
 @router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT)

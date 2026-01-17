@@ -25,10 +25,10 @@ class EmployeeCreate(EmployeeBase):
     pass
 
 class Employee(EmployeeBase):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[str] = Field(alias="_id", default=None)
     
     class Config:
-        arbitrary_types_allowed = True
+        allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
 
 class EmployeeUpdate(BaseModel):
